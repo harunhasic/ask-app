@@ -1,2 +1,3 @@
 module github.com/mop
-go 1.16
+
+// +heroku goVersion go1.16.3
