@@ -1,1 +1,1 @@
-web: mop
+web: server
