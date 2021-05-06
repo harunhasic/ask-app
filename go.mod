@@ -1,3 +1,3 @@
-module src/github.com/mop
+module github.com/mop
 
-// +heroku goVersion go1.16
+go 1.16
