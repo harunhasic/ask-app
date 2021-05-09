@@ -15,6 +15,7 @@ type QuestionRepository interface {
 	Like(questionID uint64, userID uint64)
 	DeleteLike(questionID uint64, userID uint64)
 	QuestionPage(questionID uint64, userID uint64) entity.QuestionResult
+	GetUserQuestions(userId uint64) []entity.Question
 }
 
 type questionConnection struct {
@@ -46,7 +47,7 @@ func (db *questionConnection) DeleteQuestion(q entity.Question) {
 
 func (db *questionConnection) FindQuestionByID(questionID uint64) entity.Question {
 	var question entity.Question
-	db.connection.Preload("User").Preload("Answers").Find(&question, questionID)
+	db.connection.Preload("User").Preload("Answers").Preload("Answers.User").Find(&question, questionID)
 	return question
 }
 
@@ -58,14 +59,20 @@ func (db *questionConnection) AllQuestions() []entity.Question {
 
 func (db *questionConnection) GetNumberOfLikesForQuestion() []entity.Question {
 	var questions []entity.Question
-	db.connection.Limit(5).Order("num_of_likes desc").Find(&questions)
+	db.connection.Raw(" select distinct q.body as Body, q.id as id,(select COUNT(*) FROM question_likes where question_id = q.id) AS NumOfLikes from questions q left join question_likes ql on q.id = ql.question_id order by NumOfLikes desc limit 5").Scan(&questions)
 	return questions
 }
 
 func (db *questionConnection) QuestionPage(questionID uint64, userID uint64) entity.QuestionResult {
 	var question entity.QuestionResult
-	db.connection.Raw(" select q.body as Body, q.id as QuestionID, q.num_of_likes as NumOfLikes, COUNT(ql.question_id) as NumOfLikes,(select COUNT(*) > 0 FROM question_likes where user_id =  ? and question_id = q.id) AS IsLiked,(q.user_id = ? ) as IsEditable from questions q left join question_likes ql on q.id = ql.question_id where q.id = ?", userID, userID, questionID).Scan(&question)
+	db.connection.Raw(" select q.body as Body, q.id as QuestionID,(select COUNT(*) FROM question_likes where question_id = q.id) AS NumOfLikes,(select COUNT(*) > 0 FROM question_likes where user_id =  ? and question_id = q.id) AS IsLiked,(q.user_id = ? ) as IsEditable from questions q left join question_likes ql on q.id = ql.question_id where q.id = ?", userID, userID, questionID).Scan(&question)
 	return question
+}
+
+func (db *questionConnection) GetUserQuestions(userId uint64) []entity.Question {
+	var questions []entity.Question
+	db.connection.Where("user_id = ?", userId).Find(&questions)
+	return questions
 }
 
 func (db *questionConnection) Like(questiondId uint64, userID uint64) {
@@ -75,33 +82,9 @@ func (db *questionConnection) Like(questiondId uint64, userID uint64) {
 	db.connection.Save(&questionLikes)
 }
 
-func (db *questionConnection) DeleteLike(questiondId uint64, userID uint64) {
+func (db *questionConnection) DeleteLike(questionId uint64, userID uint64) {
 	var questionLikes entity.QuestionLikes
 	questionLikes.UserID = userID
-	questionLikes.QuestionID = questiondId
-
-	db.connection.Exec("DELETE FROM QuestionLikes WHERE question_id = ? AND user_id = ?", questiondId, userID)
-	db.connection.Delete(&questionLikes)
+	questionLikes.QuestionID = questionId
+	db.connection.Where("question_id = ? and user_id = ?", questionId, userID).Delete(&questionLikes)
 }
-
-// func (db *questionConnection) GetTop5LikedQuestions(){
-// 	var questions []entity.Question
-// 	db.connection.Preload("QuestionLikes").Find(&questions)
-// 	foreach question in questions
-// 		question.numberoflikes = question.QuestionLikes.count
-
-// 	return question.Limit(5).Order("num_of_likes desc")
-// }
-
-// &questions.QuestionLikes.Where()
-// var questionsvslikes | QuestionLikes
-
-// foreach querstion in questins
-// 	question.numberoflikes =  questionsvslikes.where(questionid = question.id).countdb //GetNumberOfLikesForQuestion
-// 	question.isliked = questionsvslikes.any(userid == logovaniuserid && questionid == question.id)
-
-// func Dislike(questiondId, userid){
-// 	db.connection/QuestionLikes .remove(questiondi, userid )
-// db.connection.question.numoflikes++
-
-// }

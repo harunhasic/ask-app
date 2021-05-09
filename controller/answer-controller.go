@@ -99,7 +99,6 @@ func (c *answerController) Update(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, res)
 		return
 	}
-
 	authHeader := context.GetHeader("Authorization")
 	token, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {

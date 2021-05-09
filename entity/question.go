@@ -8,8 +8,8 @@ type Question struct {
 	Body          string           `gorm:"type:text" json:"body"`
 	UserID        uint64           `gorm:"not null" json:"user_id"`
 	User          User             `gorm:"foreignkey:UserID;constraint:onUpdate:CASCADE,onDelete:CASCADE" json:"-"`
-	NumOfLikes    int32            `json:"num_of_likes"`
-	Answers       *[]Answer        `json:"answers,omitempty"`
+	NumOfLikes    int              `json:"num_of_likes"`
+	Answers       *[]Answer        `json:"answers"`
 	QuestionLikes *[]QuestionLikes `json:"question_likes,omitempty"`
 	IsLiked       bool             `json:"is_liked"`
 	CreatedAt     time.Time        `json:"created"`

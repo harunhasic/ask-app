@@ -25,6 +25,7 @@ type QuestionController interface {
 	Like(context *gin.Context)
 	DeleteLike(context *gin.Context)
 	QuestionPage(context *gin.Context)
+	GetUserQuestions(context *gin.Context)
 }
 
 type questionController struct {
@@ -218,6 +219,24 @@ func (c *questionController) DeleteLike(context *gin.Context) {
 	c.questionService.DeleteLike(id, uint64(theId))
 	response := helper.BuildResponse(true, "Unliked", helper.EmptyObj{})
 	context.JSON(http.StatusOK, response)
+}
+
+func (c *questionController) GetUserQuestions(context *gin.Context) {
+	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
+	if err != nil {
+		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
+		context.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	var questions []entity.Question = c.questionService.GetUserQuestions(id)
+	if len(questions) > 0 {
+		res := helper.BuildResponse(true, "OK!", questions)
+		context.JSON(http.StatusOK, res)
+
+	} else {
+		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
+		context.JSON(http.StatusNotFound, res)
+	}
 }
 
 //getUserIDByToken retrieves the user id from the given token

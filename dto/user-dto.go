@@ -7,5 +7,5 @@ type UserUpdateDTO struct {
 	Firstname string `json:"firstname" form:"firstname"`
 	Lastname  string `json:"lastname" form:"lastname"`
 	Email     string `json:"email" form:"email" binding:"required,email"`
-	Password  string `json:"password,omitempty" form:"password,omitempty" binding:"min=5"`
+	Password  string `json:"password,omitempty" form:"password,omitempty" validate:"required, min=5"`
 }

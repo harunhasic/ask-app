@@ -1,8 +1,7 @@
 package repository
 
 // type QuestionLikeRepository interface {
-// 	FindUserAndQuestion(questionID int64, userID int64) bool
-// 	AlreadyLiked(questionID int64, userID int64) bool
+// 	GetMostLikedQuestions() []entity.Question
 // }
 
 // type likeConnection struct {
@@ -15,19 +14,7 @@ package repository
 // 	}
 // }
 
-// func (db *questionConnection) AddLike(questionID int64, userID int64) {
-// 	var question entity.Question
-// 	db.connection.Find(&question, "id ? = AND user_id ? = ", questionID, userID)
-// 	HandleLike(question)
-// 	return question
-// }
+// func (db *likeConnection) GetMostLikedQuestions(){
+// 	var questions []entity.Question
 
-// func HandleLike(question entity.Question) {
-// 	if question.IsLiked == false {
-// 		question.IsLiked = true
-// 		question.NumOfLikes++
-// 	} else {
-// 		question.IsLiked = false
-// 		question.NumOfLikes--
-// 	}
 // }

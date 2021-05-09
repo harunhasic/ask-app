@@ -22,6 +22,7 @@ type QuestionService interface {
 	QuestionPage(questionID uint64, userID uint64) entity.QuestionResult
 	Like(questionID uint64, userID uint64)
 	DeleteLike(questionID uint64, userID uint64)
+	GetUserQuestions(userId uint64) []entity.Question
 }
 
 type questionService struct {
@@ -88,4 +89,8 @@ func (service *questionService) DeleteLike(questionID uint64, userID uint64) {
 
 func (service *questionService) GetNumberOfLikesForQuestion() []entity.Question {
 	return service.questionRepository.GetNumberOfLikesForQuestion()
+}
+
+func (service *questionService) GetUserQuestions(userId uint64) []entity.Question {
+	return service.questionRepository.GetUserQuestions(userId)
 }

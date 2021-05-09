@@ -54,7 +54,7 @@ func main() {
 
 	userRoutes := r.Group("api/user", middleware.AuthorizeJWT(jwtService))
 	{
-		userRoutes.GET("/profile", userController.Profile)
+		userRoutes.GET("/profile/:id", userController.Profile)
 		userRoutes.PUT("/profile", userController.Update)
 	}
 
@@ -63,6 +63,7 @@ func main() {
 		mainPageRoutes.GET("/", questionController.All)
 		mainPageRoutes.GET("/likes", questionController.GetNumberOfLikesForQuestion)
 		mainPageRoutes.GET("/answers", userController.GetAnswers)
+		mainPageRoutes.GET("/question:id", questionController.QuestionPage)
 	}
 
 	questionRoutes := r.Group("api/questions", middleware.AuthorizeJWT(jwtService))
@@ -73,8 +74,9 @@ func main() {
 		questionRoutes.POST("/", questionController.Insert)
 		questionRoutes.GET("/:id", questionController.FindByID)
 		questionRoutes.GET("/page/:id", questionController.QuestionPage)
-		questionRoutes.PUT("/:id", questionController.Update)
+		questionRoutes.PUT("/", questionController.Update)
 		questionRoutes.DELETE("/:id", questionController.Delete)
+		questionRoutes.GET("/profile/:id", questionController.GetUserQuestions)
 	}
 
 	answerRoutes := r.Group("api/answers", middleware.AuthorizeJWT(jwtService))
@@ -82,7 +84,7 @@ func main() {
 		answerRoutes.GET("/", answerController.All)
 		answerRoutes.POST("/", answerController.Insert)
 		answerRoutes.GET("/:id", answerController.FindByID)
-		answerRoutes.PUT("/:id", answerController.Update)
+		answerRoutes.PUT("/", answerController.Update)
 		answerRoutes.DELETE("/:id", answerController.Delete)
 	}
 
