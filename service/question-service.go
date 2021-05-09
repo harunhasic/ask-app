@@ -15,14 +15,14 @@ type QuestionService interface {
 	Insert(q dto.QuestionCreateDTO) entity.Question
 	Update(q dto.QuestionUpdateDTO) entity.Question
 	Delete(q entity.Question)
-	All() []entity.Question
+	All(question *entity.Question, pagination *entity.Pagination) []entity.Question
 	FindById(questionID uint64) entity.Question
 	IsAllowedToEdit(userID string, questionID uint64) bool
 	GetNumberOfLikesForQuestion() []entity.Question
 	QuestionPage(questionID uint64, userID uint64) entity.QuestionResult
 	Like(questionID uint64, userID uint64)
 	DeleteLike(questionID uint64, userID uint64)
-	GetUserQuestions(userId uint64) []entity.Question
+	GetUserQuestions(userId uint64, question *entity.Question, pagination *entity.Pagination) []entity.Question
 }
 
 type questionService struct {
@@ -61,8 +61,8 @@ func (service *questionService) Delete(q entity.Question) {
 	service.questionRepository.DeleteQuestion(q)
 }
 
-func (service *questionService) All() []entity.Question {
-	return service.questionRepository.AllQuestions()
+func (service *questionService) All(question *entity.Question, pagination *entity.Pagination) []entity.Question {
+	return service.questionRepository.AllQuestions(question, pagination)
 }
 
 func (service *questionService) FindById(questionID uint64) entity.Question {
@@ -91,6 +91,6 @@ func (service *questionService) GetNumberOfLikesForQuestion() []entity.Question 
 	return service.questionRepository.GetNumberOfLikesForQuestion()
 }
 
-func (service *questionService) GetUserQuestions(userId uint64) []entity.Question {
-	return service.questionRepository.GetUserQuestions(userId)
+func (service *questionService) GetUserQuestions(userId uint64, question *entity.Question, pagination *entity.Pagination) []entity.Question {
+	return service.questionRepository.GetUserQuestions(userId, question, pagination)
 }

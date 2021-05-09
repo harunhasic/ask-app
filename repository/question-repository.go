@@ -9,13 +9,13 @@ type QuestionRepository interface {
 	InsertQuestion(q entity.Question) entity.Question
 	UpdateQuestion(q entity.Question) entity.Question
 	DeleteQuestion(q entity.Question)
-	AllQuestions() []entity.Question
+	AllQuestions(question *entity.Question, pagination *entity.Pagination) []entity.Question
 	FindQuestionByID(questionID uint64) entity.Question
 	GetNumberOfLikesForQuestion() []entity.Question
 	Like(questionID uint64, userID uint64)
 	DeleteLike(questionID uint64, userID uint64)
 	QuestionPage(questionID uint64, userID uint64) entity.QuestionResult
-	GetUserQuestions(userId uint64) []entity.Question
+	GetUserQuestions(userId uint64, question *entity.Question, pagination *entity.Pagination) []entity.Question
 }
 
 type questionConnection struct {
@@ -51,9 +51,10 @@ func (db *questionConnection) FindQuestionByID(questionID uint64) entity.Questio
 	return question
 }
 
-func (db *questionConnection) AllQuestions() []entity.Question {
+func (db *questionConnection) AllQuestions(question *entity.Question, pagination *entity.Pagination) []entity.Question {
 	var questions []entity.Question
-	db.connection.Preload("User").Limit(20).Order("created_at desc").Find(&questions)
+	offset := (pagination.Page - 1) * pagination.Limit
+	db.connection.Preload("User").Limit(pagination.Limit).Order(pagination.Sort).Offset(offset).Find(&questions)
 	return questions
 }
 
@@ -69,9 +70,10 @@ func (db *questionConnection) QuestionPage(questionID uint64, userID uint64) ent
 	return question
 }
 
-func (db *questionConnection) GetUserQuestions(userId uint64) []entity.Question {
+func (db *questionConnection) GetUserQuestions(userId uint64, question *entity.Question, pagination *entity.Pagination) []entity.Question {
 	var questions []entity.Question
-	db.connection.Where("user_id = ?", userId).Find(&questions)
+	offset := (pagination.Page - 1) * pagination.Limit
+	db.connection.Where("user_id = ?", userId).Limit(pagination.Limit).Order(pagination.Sort).Offset(offset).Find(&questions)
 	return questions
 }
 

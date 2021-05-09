@@ -11,6 +11,7 @@ import (
 	"github.com/mop/entity"
 	"github.com/mop/helper"
 	"github.com/mop/service"
+	"github.com/mop/utils"
 )
 
 //QuestionController is the interface that shows what methods a question
@@ -43,7 +44,9 @@ func NewQuestionController(questionServ service.QuestionService, jwtServ service
 
 //All returns all the question entries in the db
 func (c *questionController) All(context *gin.Context) {
-	var questions []entity.Question = c.questionService.All()
+	pagination := utils.GeneratePaginationFromRequest(context)
+	var question entity.Question
+	var questions []entity.Question = c.questionService.All(&question, &pagination)
 	res := helper.BuildResponse(true, "OK!", questions)
 	context.JSON(http.StatusOK, res)
 }
@@ -222,13 +225,15 @@ func (c *questionController) DeleteLike(context *gin.Context) {
 }
 
 func (c *questionController) GetUserQuestions(context *gin.Context) {
+	pagination := utils.GeneratePaginationFromRequest(context)
+	var question entity.Question
 	id, err := strconv.ParseUint(context.Param("id"), 0, 0)
 	if err != nil {
 		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
 		context.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	var questions []entity.Question = c.questionService.GetUserQuestions(id)
+	var questions []entity.Question = c.questionService.GetUserQuestions(id, &question, &pagination)
 	if len(questions) > 0 {
 		res := helper.BuildResponse(true, "OK!", questions)
 		context.JSON(http.StatusOK, res)
